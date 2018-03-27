@@ -23,12 +23,13 @@
 
   //POST送信されたデータがある場合
   if (!empty($_POST)){
-
+// var_dump($_POST);
     $name = $_POST["input_name"];
     $email = $_POST["input_email"];
     $password = $_POST["input_password"];
     $count = strlen($password); //変数の中に何文字保存されてるか取得する
 
+// var_dump($password);
     //ユーザー名のチェック
     if ($name == ''){
       $errors["name"] = "blank";
@@ -37,7 +38,27 @@
     //Emailのチェック
     if ($email == ''){
       $errors["email"] = "blank";
+    }else{
+      //重複エラーチェック
+      //DBに接続
+      require("../dbconnect.php");
+
+      //入力されたemailと合致するデータの件数を取得
+      $sql = 'SELECT COUNT(*) as `cnt` FROM `users` WHERE `email` = ?';
+      $data = array($email);
+      $stmt = $dbh->prepare($sql);
+      $stmt->execute($data);
+
+      $rec = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      //1件以上であれば、重複エラーの印を保存
+      if ($rec["cnt"] > 0){
+        $errors["email"] = "deplicate";
+      }
+
     }
+
+    // var_dump($password);
 
     //パスワードのチェック
     if ($password == ''){
@@ -122,6 +143,11 @@
             <?php if ((isset($errors["email"])) && ($errors["email"] == 'blank')) { ?>
               <p class="text-danger">メールアドレスを入力してください</p>
             <?php } ?>
+            <?php if ((isset($errors["email"])) && ($errors["email"] == 'deplicate')) { ?>
+              <p class="text-danger">入力されたメールアドレスは既に使用されています</p>
+            <?php } ?>
+
+
           </div>
           <div class="form-group">
             <label for="password">パスワード</label>
