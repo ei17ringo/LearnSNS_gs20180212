@@ -1,5 +1,32 @@
 <?php
-  // timeline.phpの処理を記載
+  session_start();
+  require('dbconnect.php');
+
+  //ナビバーに表示するためログインユーザーの情報を取得
+  $sql = 'SELECT * FROM `users` WHERE `id`='.$_SESSION['id'];
+
+  $stmt = $dbh->prepare($sql);
+  $stmt->execute();
+
+  $login_user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  // var_dump($login_user);
+
+  //つぶやきを保存
+  if (isset($_POST) && !empty($_POST)){
+
+    $sql = 'INSERT INTO `feeds` SET `feed`=?, `user_id`=?, `created`=NOW()';
+
+    $data = array($_POST["feed"],$_SESSION['id']);
+
+    $stmt = $dbh->prepare($sql);
+    $stmt->execute($data);
+
+
+  }
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -35,7 +62,7 @@
         </form>
         <ul class="nav navbar-nav navbar-right">
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><img src="https://placehold.jp/18x18.png" width="18" class="img-circle">ログインユーザー名 <span class="caret"></span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><img src="user_profile_img/<?php echo $login_user["img_name"]; ?>" width="18" class="img-circle"><?php echo $login_user['name']; ?> <span class="caret"></span></a>
             <ul class="dropdown-menu">
               <li><a href="#">マイページ</a></li>
               <li><a href="signout.php">サインアウト</a></li>
