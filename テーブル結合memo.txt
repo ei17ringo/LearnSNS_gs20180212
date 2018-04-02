@@ -1,0 +1,22 @@
+テーブル結合
+
+外部キーと主キーを結合条件として、複数テーブルから一気にデータを取得すること
+
+主キー
+idという名前で表される
+例）
+users.id
+
+外部キー
+もともとのテーブル名とアンダースコアとidで表される
+例）
+feeds.user_id
+
+SELECT * FROM `feeds`  ORDER BY `updated` DESC
+結合後↓
+SELECT * FROM `feeds` INNER JOIN `users` ON `feeds`.`user_id` = `users`.`id`  ORDER BY `feeds`.`updated` DESC
+
+SELECT * FROM テーブル1 INNER JOIN テーブル2 ON テーブル結合条件 ...(WHERE句やORDER BY句がつづく)
+
+必要なカラムだけを取得する
+SELECT `feeds`.*,`users`.`name`,`users`.`img_name` as `profile_image` FROM `feeds` INNER JOIN `users` ON `feeds`.`user_id` = `users`.`id`  ORDER BY `feeds`.`updated` DESC
