@@ -10,8 +10,6 @@
 
   $login_user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  // var_dump($login_user);
-
   //つぶやきを保存
   if (isset($_POST) && !empty($_POST)){
 
@@ -25,6 +23,27 @@
 
   }
 
+  //timelineの情報を取得
+  $sql = 'SELECT `feeds`.*,`users`.`name`,`users`.`img_name` as `profile_image` FROM `feeds` INNER JOIN `users` ON `feeds`.`user_id` = `users`.`id` ORDER BY `feeds`.`updated` DESC';
+  $stmt = $dbh->prepare($sql);
+  $stmt->execute();
+
+  //表示部分で使用できるようにタイムラインの情報を格納する配列を用意
+  $timeline = array();
+  while (1) {
+    $rec = $stmt->fetch(PDO::FETCH_ASSOC);
+    // テーブル結合以前
+    // $rec = array("id"=>1,"feed"=>"つぶやいた内容",,,,"created"=>"2018-03-03","updated"=>"2018-03-03")
+    // テーブル結合後
+    // $rec = array("id"=>1,"feed"=>"つぶやいた内容",,,,"created"=>"2018-03-03","updated"=>"2018-03-03","name"=>"demotarou","profile_image"=>"20180303010101test.png")
+
+
+    if ($rec == false){
+      break;
+    }
+
+    $timeline[] = $rec;
+  }
 
 
 ?>
@@ -91,36 +110,9 @@
             <input type="submit" value="投稿する" class="btn btn-primary">
           </form>
         </div>
-          <div class="thumbnail">
-            <div class="row">
-              <div class="col-xs-1">
-                <img src="https://placehold.jp/40x40.png" width="40">
-              </div>
-              <div class="col-xs-11">
-                名前 aaa<br>
-                <a href="#" style="color: #7F7F7F;">2018-03-03</a>
-              </div>
-            </div>
-            <div class="row feed_content">
-              <div class="col-xs-12" >
-                <span style="font-size: 24px;">つぶやき</span>
-              </div>
-            </div>
-            <div class="row feed_sub">
-              <div class="col-xs-12">
-                <form method="POST" action="" style="display: inline;">
-                  <input type="hidden" name="feed_id" >
-                  
-                    <input type="hidden" name="like" value="like">
-                    <button type="submit" class="btn btn-default btn-xs"><i class="fa fa-thumbs-up" aria-hidden="true"></i>いいね！</button>
-                </form>
-                <span class="like_count">いいね数 : 100</span>
-                <span class="comment_count">コメント数 : 9</span>
-                  <a href="#" class="btn btn-success btn-xs">編集</a>
-                  <a href="#" class="btn btn-danger btn-xs">削除</a>
-              </div>
-            </div>
-          </div>
+          <?php foreach ($timeline as $timeline_each) {
+              include("timeline_oneline.php");
+          } ?>
         <nav aria-label="Page navigation">
           <ul class="pager">
             <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Older</a></li>
