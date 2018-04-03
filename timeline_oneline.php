@@ -22,8 +22,10 @@
                 </form>
                 <span class="like_count">いいね数 : 100</span>
                 <span class="comment_count">コメント数 : 9</span>
+                <?php if ($_SESSION["id"] == $timeline_each["user_id"]){ ?>
                   <a href="#" class="btn btn-success btn-xs">編集</a>
                   <a href="#" class="btn btn-danger btn-xs">削除</a>
+                <?php } ?>
               </div>
             </div>
           </div>
