@@ -8,6 +8,14 @@
   $email = '';
   $password = '';
 
+  //クッキー情報の存在をチェックし、あれば、POST送信されてきたように$_POST変数へ代入
+  if (isset($_COOKIE['email']) && !empty($_COOKIE['email'])){
+    $_POST["input_email"] = $_COOKIE['email'];
+    $_POST["input_password"] = $_COOKIE['password'];
+    $_POST["save"] = "on";
+  }
+
+
   //POST送信されたデータがある場合
   if (!empty($_POST)){
     $email = $_POST["input_email"];
@@ -48,6 +56,14 @@
 
           //SESSION変数にIDを保存
           $_SESSION['id'] = $rec['id'];
+
+          //自動ログインが指示されていたら、クッキーにログイン情報を保存
+          if ($_POST["save"] == "on"){
+            //time() 現在時間を1970/01/01 0:00:00から秒数で表した数字
+            //2週間後を有効期限に設定している
+            setcookie('email',$email,time() + 60*60*24*14);
+            setcookie('password',$password,time() + 60*60*24*14);
+          }
 
           //timeline.phpに移動
           header("Location: timeline.php");
@@ -96,8 +112,10 @@
             <?php if ((isset($errors["siginin"])) && ($errors["siginin"] == 'failed')) { ?>
               <p class="text-danger">ログインに失敗しました。入力情報を確認してください</p>
             <?php } ?>
-
-
+          </div>
+          <div class="form-group">
+            <label for="save">自動サインイン</label>
+            <input type="checkbox" name="save" value="on" checked>
           </div>
           <input type="submit" class="btn btn-info" value="サインイン">
         </form>
