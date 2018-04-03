@@ -1,0 +1,17 @@
+データを保存する仕組み
+
+セッション変数
+サーバー上にデータが保持されている
+有効期限が切れると勝手にサーバー上から破棄される
+$_SESSION
+
+クッキー
+ユーザーのブラウザ上にデータが保存されている
+認証情報を保存する際によく利用される
+有効期限が切れると勝手にブラウザ上から削除される
+$_COOKIE
+
+
+COOKIE情報を確認するための便利ツール
+EditThisCookie（Chrome拡張機能）
+https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg?hl=ja
