@@ -1,14 +1,8 @@
 <?php
   session_start();
   require('dbconnect.php');
+  require('signin_check.php');
 
-  //ナビバーに表示するためログインユーザーの情報を取得
-  $sql = 'SELECT * FROM `users` WHERE `id`='.$_SESSION['id'];
-
-  $stmt = $dbh->prepare($sql);
-  $stmt->execute();
-
-  $login_user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   //つぶやきを保存
   if (isset($_POST) && !empty($_POST)){

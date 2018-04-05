@@ -15,11 +15,7 @@
             </div>
             <div class="row feed_sub">
               <div class="col-xs-12">
-                <form method="POST" action="" style="display: inline;">
-                  <input type="hidden" name="feed_id" >
-                    <input type="hidden" name="like" value="like">
-                    <button type="submit" class="btn btn-default btn-xs"><i class="fa fa-thumbs-up" aria-hidden="true"></i>いいね！</button>
-                </form>
+                <a href="like.php?feed_id=<?php echo $timeline_each["id"]; ?>"><button type="button" class="btn btn-default btn-xs"><i class="fa fa-thumbs-up" aria-hidden="true"></i>いいね！</button></a>
                 <span class="like_count">いいね数 : 100</span>
                 <span class="comment_count">コメント数 : 9</span>
                 <?php if ($_SESSION["id"] == $timeline_each["user_id"]){ ?>
