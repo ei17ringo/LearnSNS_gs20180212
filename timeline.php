@@ -17,10 +17,56 @@
 
   }
 
+  //ページングの処理
+  $page = ""; // ページ番号
+  $start = 0; // データの取得開始番号（LIMIT句の指定に使用）
+  $page_row = 3; // 1ページ分の表示件数
+
+  //パラメータが存在していたらページ番号を代入
+  if (isset($_GET["page"])){
+    $page = $_GET["page"];
+  }else{
+    //存在しない場合1ページ目とみなす
+    $page = 1;
+  }
+
+  //1以下のイレギュラーな数字が入ってきた時は強制的に1とします
+  // max カンマ区切りで羅列された数字の中から最大の数字を取得
+  $page = max($page,1);
+
+  //データの件数から最大ページ数を計算する
+  $sql_count = "SELECT COUNT(*) AS `cnt` FROM `feeds` ";
+  $stmt_count = $dbh->prepare($sql_count);
+  $stmt_count->execute();
+
+  $rec_count = $stmt_count->fetch(PDO::FETCH_ASSOC);
+
+  // ceil 小数点の切り上げ
+  $all_page_number = ceil($rec_count['cnt'] / $page_row);
+
+  // ページ番号が最大ページの番号を超えていれば、強制的に最後のページ数にする
+  // min カンマ区切りの数字の羅列から、最小の数字を取得する
+  $page = min($page,$all_page_number);
+
+  //開始番号の計算
+  $start = ($page - 1) * $page_row;
+
   //timelineの情報を取得
-  $sql = 'SELECT `feeds`.*,`users`.`name`,`users`.`img_name` as `profile_image` FROM `feeds` INNER JOIN `users` ON `feeds`.`user_id` = `users`.`id` ORDER BY `feeds`.`updated` DESC';
+  if (isset($_GET["search_word"]) && !empty($_GET["search_word"])){
+    //なにか検索ワードで検索した時
+    $sql = 'SELECT `feeds`.*,`users`.`name`,`users`.`img_name` as `profile_image` FROM `feeds` INNER JOIN `users` ON `feeds`.`user_id` = `users`.`id` WHERE `feeds`.`feed` LIKE ? ORDER BY `feeds`.`updated` DESC';
+
+    $word = "%".$_GET["search_word"]."%";
+    $data = array($word);
+
+  }else{
+    //通常
+    $sql = 'SELECT `feeds`.*,`users`.`name`,`users`.`img_name` as `profile_image` FROM `feeds` INNER JOIN `users` ON `feeds`.`user_id` = `users`.`id` ORDER BY `feeds`.`updated` DESC LIMIT '.$start.','.$page_row;
+    $data = array();
+  }
+
   $stmt = $dbh->prepare($sql);
-  $stmt->execute();
+  $stmt->execute($data);
 
   //表示部分で使用できるようにタイムラインの情報を格納する配列を用意
   $timeline = array();
@@ -153,8 +199,16 @@
           } ?>
         <nav aria-label="Page navigation">
           <ul class="pager">
-            <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Older</a></li>
-            <li class="next"><a href="#">Newer <span aria-hidden="true">&rarr;</span></a></li>
+            <?php if ($page <= 1){ ?>
+            <li class="previous disabled"><a><span aria-hidden="true">&larr;</span> Older</a></li>
+            <?php }else{ ?>
+            <li class="previous"><a href="timeline.php?page=<?php echo $page - 1; ?>"><span aria-hidden="true">&larr;</span> Older</a></li>
+            <?php } ?>
+            <?php if ($page >= $all_page_number){ ?>
+            <li class="next disabled"><a>Newer <span aria-hidden="true">&rarr;</span></a></li>
+            <?php }else{ ?>
+            <li class="next"><a href="timeline.php?page=<?php echo $page + 1; ?>">Newer <span aria-hidden="true">&rarr;</span></a></li>
+            <?php } ?>
           </ul>
         </nav>
       </div>
